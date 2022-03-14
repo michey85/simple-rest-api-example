@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 const multer = require('multer');
 require('dotenv').config();
 
@@ -16,7 +17,6 @@ const fileStorage = multer.diskStorage({
     cb(null, 'images');
   },
   filename: (req, file, cb) => {
-    // console.log({file})
     const filename = new Date().toISOString() + '-' + file.originalname;
 
     cb(null, filename);
@@ -36,10 +36,10 @@ const fileFilter = (req, file, cb) => {
   }
 }
 
+app.use(helmet());
 app.use(bodyParser.json());
 app.use(multer({
   storage: fileStorage,
-  // dest: 'images/',
   fileFilter,
 }).single('image'));
 app.use('/images', express.static(path.join(__dirname, 'images')));
@@ -63,6 +63,6 @@ app.use((err, req, res, next) => {
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
   console.log('DB connected.');
-  app.listen(8080);
+  app.listen(process.env.PORT || 3000);
 }).catch(console.error)
 

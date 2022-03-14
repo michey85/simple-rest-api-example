@@ -13,7 +13,10 @@ exports.getPosts = (req, res, next) => {
 
   Post.find().countDocuments().then(count => {
     totalPosts = count;
-    return Post.find().skip((page - 1) * POST_PER_PAGE).limit(POST_PER_PAGE);
+    return Post.find()
+      .populate('creator', ['name', 'status'])
+      .skip((page - 1) * POST_PER_PAGE)
+      .limit(POST_PER_PAGE);
   })
   .then((posts) => {
     res.json({
@@ -24,7 +27,7 @@ exports.getPosts = (req, res, next) => {
 }
 
 exports.getPostById = (req, res, next) => {
-  Post.findById(req.params.id).then(post => {
+  Post.findById(req.params.id).populate('creator', ['name', 'status']).then(post => {
     if (!post) throw new Error('There is no post with such id');
 
     res.json(post);
